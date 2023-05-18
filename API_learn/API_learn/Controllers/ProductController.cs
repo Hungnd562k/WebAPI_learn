@@ -36,18 +36,33 @@ namespace API_learn.Controllers
             
         }
         [HttpPost]
-        public IActionResult PushNew(ProductVM productVM)
+        public IActionResult PushNew(ProductVM[] productsvm)
         {
-            var product = new Product
+            //var product = new Product
+            //{
+            //    ProdId = Guid.NewGuid(),
+            //    ProdName = productVM.ProdName,
+            //    Price = productVM.Price
+            //};
+            //Products.Add(product);
+            //return Ok(new
+            //{
+            //    Success = true, Data = product
+            //});
+            foreach(var prodvm in productsvm)
             {
-                ProdId = Guid.NewGuid(),
-                ProdName = productVM.ProdName,
-                Price = productVM.Price
-            };
-            Products.Add(product);
+                var prod = new Product()
+                {
+                    ProdName = prodvm.ProdName,
+                    Price = prodvm.Price,
+                    ProdId = Guid.NewGuid()
+                };
+                Products.Add(prod);
+            }
             return Ok(new
             {
-                Success = true, Data = product
+                Success = true,
+                Data = Products
             });
         }
         [HttpPut("{id}")]
