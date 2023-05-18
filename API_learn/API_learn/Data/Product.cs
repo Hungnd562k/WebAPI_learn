@@ -18,5 +18,12 @@ namespace API_learn.Data
         public int? CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public Categories Categories { get; set; }
+
+        //Relationship
+        public ICollection<OrderDetail> OrderDetails { get; set; }
+        public Product()
+        {
+            OrderDetails = new List<OrderDetail>();
+        }
     }
 }
