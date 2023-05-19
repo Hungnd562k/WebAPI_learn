@@ -1,5 +1,6 @@
 ﻿using API_learn.Data;
 using API_learn.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,7 @@ namespace API_learn.Controllers
             }
         }
         [HttpPost]
+        [Authorize]
         public IActionResult AddNewCategory(CategoriesModel _newCategory)
         {
             var ExistCategory = _dbContext.Categories.FirstOrDefault(x => x.CategoryName == _newCategory.CategoryName);
@@ -50,11 +52,7 @@ namespace API_learn.Controllers
                 };
                 _dbContext.Categories.Add(NewCategory);
                 _dbContext.SaveChanges();
-                return Ok(new
-                {
-                    Success = true,
-                    Data = NewCategory
-                });
+                return StatusCode(StatusCodes.Status201Created, NewCategory);
             }
             else
             {
@@ -74,7 +72,7 @@ namespace API_learn.Controllers
                 category.CategoryName = _newCategory.CategoryName;
                 _dbContext.Categories.Update(category);
                 _dbContext.SaveChanges();
-                return Ok(new { Success = true, Data = category });
+                return NoContent();
             }
         }
         [HttpDelete("{Id}")]
