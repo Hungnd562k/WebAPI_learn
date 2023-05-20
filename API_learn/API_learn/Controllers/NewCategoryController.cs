@@ -39,7 +39,7 @@ namespace API_learn.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-        [HttpPost] //bug is here
+        [HttpPost] 
         public IActionResult Add(CategoriesVM c)
         {
             try

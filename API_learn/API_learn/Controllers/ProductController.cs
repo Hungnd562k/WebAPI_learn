@@ -1,4 +1,6 @@
-﻿using API_learn.Models;
+﻿using API_learn.Data;
+using API_learn.Models;
+using API_learn.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,104 +10,78 @@ namespace API_learn.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        public static List<Product> Products = new List<Product>();
-
-        [HttpGet]
-        public IActionResult GetAll()
+        private readonly IProductRepository _repo;
+        public ProductController(IProductRepository repo)
         {
-            return Ok(Products);
+            _repo = repo;
+        }
+        [HttpGet]
+        public IActionResult Get()
+        {
+            try
+            {
+                return Ok(_repo.Get());
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, ex.Message);
+            }
         }
         [HttpGet("{id}")]
-        public IActionResult Get(string id)
+        public IActionResult GetById(string id)
         {
             try
             {
-                var product = Products.SingleOrDefault(x => x.ProdId == Guid.Parse(id));
-                if (product == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    return Ok(product);
-                } 
-            } catch (Exception ex)
-            {
-                return BadRequest();
-            }
-            
-        }
-        [HttpPost]
-        public IActionResult PushNew(ProductVM[] productsvm)
-        {
-            //var product = new Product
-            //{
-            //    ProdId = Guid.NewGuid(),
-            //    ProdName = productVM.ProdName,
-            //    Price = productVM.Price
-            //};
-            //Products.Add(product);
-            //return Ok(new
-            //{
-            //    Success = true, Data = product
-            //});
-            foreach(var prodvm in productsvm)
-            {
-                var prod = new Product()
-                {
-                    ProdName = prodvm.ProdName,
-                    Price = prodvm.Price,
-                    ProdId = Guid.NewGuid()
-                };
-                Products.Add(prod);
-            }
-            return Ok(new
-            {
-                Success = true,
-                Data = Products
-            });
-        }
-        [HttpPut("{id}")]
-        public IActionResult Update(string id, Product prod)
-        {
-            try
-            {
-                var product = Products.SingleOrDefault(x => x.ProdId == Guid.Parse(id));
-                if (product == null)
-                {
-                    return NotFound();
-                }
-                if (id != product.ProdId.ToString())
-                {
-                    return BadRequest();
-                }
-                //update
-                product.ProdName = prod.ProdName;
-                product.Price = prod.Price;
-                return Ok(new
-                {
-                    Success = true,
-                    Data = prod
-                });
-            } catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }   
-        }
-        [HttpDelete("{id}")]
-        public IActionResult DeleteById(string id)
-        {
-            try
-            {
-                var product = Products.SingleOrDefault(x => x.ProdId == Guid.Parse(id));
-                if (product == null)
-                {
-                    return NotFound();
-                }
-                Products.Remove(product);
-                return Ok();
+                return Ok(_repo.GetById(id));
             }
             catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, ex.Message);
+            }
+        }
+        [HttpPost]
+        public IActionResult Add(ProductModel pm) 
+        {
+            try
+            {
+                _repo.Add(pm);
+                return Ok(new
+                {
+                    Status = true,
+                    Data = pm
+                });
+                
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut]
+        public IActionResult Update(string id, ProductModel pm)
+        {
+            try
+            {
+                _repo.Update(id, pm);
+                return Ok(new
+                {
+                    Status = true, Data = pm
+                });
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpDelete]
+        public IActionResult Delete(string id)
+        {
+            try
+            {
+                _repo.Delete(id);
+                return Ok();
+            }
+            catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }
