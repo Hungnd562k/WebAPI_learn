@@ -1,5 +1,6 @@
 ﻿using API_learn.Controllers;
 using API_learn.Data;
+using API_learn.Helper;
 using API_learn.Models;
 
 namespace API_learn.Services
@@ -7,6 +8,7 @@ namespace API_learn.Services
     public class ProductRepository : IProductRepository
     {
         private readonly AppDbContext _dbContext;
+        private static int PAGE_SIZE { get; set; } = 5;
         public ProductRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -36,7 +38,7 @@ namespace API_learn.Services
             }
         }
 
-        List<ProductModel> IProductRepository.Get()
+        List<ProductModel> IProductRepository.Get(int page = 1)
         {
             var _products = _dbContext.Products.Select(x => new ProductModel
             {
@@ -44,27 +46,31 @@ namespace API_learn.Services
                 Price = x.Price,
                 Description = x.Description,
                 Sale = x.Sale
-            });
+            }).Skip((page - 1) * PAGE_SIZE).Take(PAGE_SIZE);
             return _products.ToList();
         }
 
-        ProductModel IProductRepository.GetById(string id)
+        List<ProductModel> IProductRepository.GetByName(string name, FilterHelper _fh, int page = 1)
         {
-            var _product = _dbContext.Products.SingleOrDefault(x => x.ProductId == Guid.Parse(id));
-            if (_product == null)
+            var matchProduct = _dbContext.Products.Where(x => x.ProdName.ToLower().Contains(name) && x.Price > _fh.from && x.Price < _fh.to);
+            IQueryable<ProductModel> pm = matchProduct.Select(x => new ProductModel
             {
-                return null;
-            }
-            else
+                ProdName = x.ProdName,
+                Price = x.Price,
+                Description = x.Description,
+                Sale = x.Sale
+            }).Skip((page - 1) * PAGE_SIZE).Take(PAGE_SIZE); 
+            List<ProductModel> result = null;
+            switch (_fh.SortBy)
             {
-                return new ProductModel
-                {
-                    ProdName = _product.ProdName,
-                    Price = _product.Price,
-                    Description = _product.Description,
-                    Sale = _product.Sale
-                };
+                case "asc":
+                    result = pm.OrderBy(x => x.Price).ToList();
+                    break;
+                case "desc":
+                    result = pm.OrderByDescending(x => x.Price).ToList();
+                    break;
             }
+            return result;
         }
 
         void IProductRepository.Update(string id, ProductModel pm)

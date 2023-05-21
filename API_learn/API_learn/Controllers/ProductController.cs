@@ -1,4 +1,5 @@
 ﻿using API_learn.Data;
+using API_learn.Helper;
 using API_learn.Models;
 using API_learn.Services;
 using Microsoft.AspNetCore.Http;
@@ -15,24 +16,25 @@ namespace API_learn.Controllers
         {
             _repo = repo;
         }
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
         {
             try
             {
-                return Ok(_repo.Get());
+                return Ok(_repo.Get(id));
             }
             catch(Exception ex)
             {
                 return StatusCode(StatusCodes.Status404NotFound, ex.Message);
             }
         }
-        [HttpGet("{id}")]
-        public IActionResult GetById(string id)
+        [HttpGet("{name}, {_from}, {_to}, {_sortValue}, {_page}")]
+        public IActionResult GetByName(string name, int _from, int _to, string _sortValue, int _page)
         {
+            FilterHelper _fh = new FilterHelper { from = _from, to = _to, SortBy = _sortValue };
             try
             {
-                return Ok(_repo.GetById(id));
+                return Ok(_repo.GetByName(name, _fh, _page));
             }
             catch (Exception ex)
             {
