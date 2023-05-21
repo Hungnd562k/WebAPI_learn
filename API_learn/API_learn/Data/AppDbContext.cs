@@ -7,6 +7,7 @@ namespace API_learn.Data
         public AppDbContext(DbContextOptions options) : base(options) { }
 
         #region DbSet
+        public DbSet<User> Users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Categories> Categories { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -36,6 +37,18 @@ namespace API_learn.Data
                     .WithMany(e => e.OrderDetails)
                     .HasForeignKey(e => e.ProductId)
                     .HasConstraintName("FK_orderdetail_product");
+            });
+
+            modelBuilder.Entity<User>(e =>
+            {
+                e.ToTable("Users");
+                e.HasKey(e => e.UserId);
+                e.HasIndex(e => e.UserName).IsUnique();
+                e.Property(e => e.UserName).HasMaxLength(20).IsRequired();
+                e.Property(e => e.Password).HasMaxLength(15).IsRequired();
+                e.Property(e => e.FullName).HasMaxLength(50).IsRequired();
+                e.Property(e => e.FullName).HasColumnType("nvarchar");
+                e.Property(e => e.Email).HasMaxLength(50).IsRequired();
             });
         }
     }

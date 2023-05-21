@@ -1,6 +1,7 @@
 using API_learn.Data;
 using API_learn.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,11 @@ builder.Configuration.GetConnectionString("MyDb")
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 var app = builder.Build();
+
+//var SecretKey = builder.Configuration["AppSetting: SecretKey"];
+//var SecretKeyBytes = Encoding.UTF8.GetBytes(SecretKey);
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

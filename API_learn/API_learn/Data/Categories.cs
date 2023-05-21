@@ -9,7 +9,11 @@ namespace API_learn.Data
         [Key]
         public int CategoryID { get; set; }
         [Required]
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
         public virtual ICollection<Product> Products { get; set; }
+        public Categories()
+        {
+            ICollection<Product> Products = new List<Product>();
+        }
     }
 }
